@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>튼튼하조 뼈 건강 체크</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: 왼쪽 3단 체크리스트, 오른쪽 고정 결과 패널. 체크할 때마다 결과가 바로 바뀜 */
+:root{
+  --bg:#eef2f1;
+  --surface:#ffffff;
+  --ink:#15212a;
+  --muted:#5b6b74;
+  --line:#d5dedd;
+  --accent:#1d6a86;
+  --accent-soft:#dcebf0;
+  --warm:#d9772b;
+  --warm-soft:#f8e7d8;
+  --good:#2f7d4f;
+  --good-soft:#dff0e5;
+  --alert:#b5462f;
+  --alert-soft:#f6e1dc;
+  --q1:#2f7d4f; --q2:#1d6a86; --q3:#b5462f; --q4:#d9772b;
+  --display:"Do Hyeon","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1619; --surface:#172126; --ink:#e6eef0; --muted:#9aaab1; --line:#2a383e;
+    --accent:#5fb2cf; --accent-soft:#1c3640; --warm:#eb9a5a; --warm-soft:#3a2a1d;
+    --good:#6cc28f; --good-soft:#1b3326; --alert:#e6806b; --alert-soft:#3a221d;
+    --q1:#6cc28f; --q2:#5fb2cf; --q3:#e6806b; --q4:#eb9a5a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1619; --surface:#172126; --ink:#e6eef0; --muted:#9aaab1; --line:#2a383e;
+  --accent:#5fb2cf; --accent-soft:#1c3640; --warm:#eb9a5a; --warm-soft:#3a2a1d;
+  --good:#6cc28f; --good-soft:#1b3326; --alert:#e6806b; --alert-soft:#3a221d;
+  --q1:#6cc28f; --q2:#5fb2cf; --q3:#e6806b; --q4:#eb9a5a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 20px 48px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:20px}
+.brand{font-family:var(--display);font-size:34px;line-height:1;letter-spacing:.5px}
+.brand span{color:var(--accent)}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note{font-size:13px;color:var(--muted)}
+button.ghost{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:8px;cursor:pointer}
+button.ghost:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible+span,label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:24px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+.part{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 20px 16px;margin-bottom:16px}
+.part-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.part-no{font-family:var(--display);font-size:22px;color:var(--accent)}
+.part h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0;text-wrap:balance}
+.part .hint{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.group-label{font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 8px;letter-spacing:.2px}
+.group-label .tag{font-weight:500;margin-left:6px;padding:1px 8px;border-radius:99px;font-size:12px}
+.tag.good{background:var(--good-soft);color:var(--good)}
+.tag.bad{background:var(--alert-soft);color:var(--alert)}
+
+.radios{display:flex;flex-wrap:wrap;gap:8px}
+.radios label{position:relative}
+.radios input{position:absolute;opacity:0;pointer-events:none}
+.radios span{display:inline-block;padding:7px 14px;border:1px solid var(--line);border-radius:99px;cursor:pointer;font-size:14px;background:var(--surface)}
+.radios input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--surface);transition:border-color .15s,background .15s}
+.check:hover{border-color:var(--accent)}
+.check input{margin:3px 0 0;width:17px;height:17px;accent-color:var(--accent);flex:none}
+.check.on{border-color:var(--accent);background:var(--accent-soft)}
+.check.bad.on{border-color:var(--alert);background:var(--alert-soft)}
+.check.bad input{accent-color:var(--alert)}
+.check.off{opacity:.45;cursor:not-allowed}
+.check small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4}
+
+.acts{display:grid;gap:6px}
+.act{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:10px}
+.act.on{border-color:var(--warm);background:var(--warm-soft)}
+.act label.name{display:flex;gap:10px;align-items:center;cursor:pointer}
+.act input[type=checkbox]{width:17px;height:17px;accent-color:var(--warm);flex:none}
+.act .met{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.freq{display:flex;gap:4px}
+.freq button{font:inherit;font-size:12.5px;padding:4px 9px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.freq button.sel{background:var(--warm);border-color:var(--warm);color:#fff}
+.act:not(.on) .freq button.sel{background:var(--surface);color:var(--muted);border-color:var(--line)}
+.int-label{font-size:12px;color:var(--muted);margin:10px 0 4px}
+
+/* result */
+.result{position:sticky;top:16px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.res-head{padding:18px 20px 14px;border-bottom:1px solid var(--line);border-top:6px solid var(--qc,var(--accent))}
+.res-kicker{font-size:12.5px;color:var(--muted);letter-spacing:.3px}
+.res-name{font-family:var(--display);font-size:32px;line-height:1.15;color:var(--qc);margin:2px 0 2px}
+.res-tag{font-size:13px;color:var(--muted)}
+.res-line{margin:8px 0 0;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.stat{padding:10px 12px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat span{font-size:12px;color:var(--muted)}
+.chart{padding:12px 16px 4px}
+.chart svg{width:100%;height:auto;display:block}
+.axes{padding:0 20px 18px}
+.axis{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:12px}
+.axis h3{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}
+.axis h3 i{font-style:normal;font-family:var(--display);font-size:13px;color:#fff;background:var(--accent);border-radius:6px;padding:1px 7px}
+.axis.ex h3 i{background:var(--warm)}
+.axis.food h3 i{background:var(--good)}
+.axis p{margin:0 0 6px}
+.axis ul{margin:4px 0 0;padding-left:18px}
+.axis li{margin:2px 0}
+.mini{font-size:12.5px;color:var(--muted)}
+.ev{margin-top:8px;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font-size:12.5px;padding:2px 9px;border-radius:99px;background:var(--alert-soft);color:var(--alert)}
+.chip.ok{background:var(--good-soft);color:var(--good)}
+.disc{font-size:12px;color:var(--muted);padding:12px 20px 16px;border-top:1px solid var(--line);margin:0}
+/* 카카오톡 보내기 */
+.send{padding:16px 20px 18px;border-top:1px solid var(--line)}
+.send h3{margin:0 0 4px;font-size:15px}
+.send .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn-kakao{font:inherit;font-weight:700;font-size:15px;flex:1 1 200px;border:0;border-radius:10px;padding:11px 14px;background:#FEE500;color:#191919;cursor:pointer}
+.btn-kakao:hover{filter:brightness(.96)}
+.btn-line{font:inherit;font-size:14px;flex:1 1 120px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);color:var(--ink);cursor:pointer}
+.btn-line:hover{border-color:var(--accent)}
+.send [hidden]{display:none!important}
+.preview{margin-top:12px;display:none}
+.preview.show{display:block}
+.preview img{width:100%;border-radius:12px;border:1px solid var(--line);display:block}
+.codebox{display:flex;gap:8px;align-items:center;margin-top:8px;background:var(--bg);border-radius:10px;padding:8px 10px}
+.codebox code{flex:1;font-size:12.5px;word-break:break-all;font-family:ui-monospace,Menlo,Consolas,monospace}
+.toast{font-size:13px;color:var(--good);margin-top:8px;min-height:1em}
+
+/* v2: 숫자 입력·활동 시간 */
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:4px}
+.field{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;row-gap:6px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.field .q,.qn{font-family:var(--display);font-size:13px;color:#fff;background:var(--accent);border-radius:6px;padding:0 7px;font-weight:400}
+.qn{margin-right:8px;background:var(--alert)}
+.field .fl{font-weight:600;font-size:14px}
+.field .in,.field .radios,.field small{grid-column:1 / -1}
+.field .in{display:flex;align-items:center;gap:6px}
+.field input[type=number]{font:inherit;font-size:16px;width:100%;min-width:0;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.field input[type=number]:focus{outline:2px solid var(--accent);outline-offset:1px}
+.field em{font-style:normal;color:var(--muted);font-size:14px}
+.field small{color:var(--muted);font-size:12.5px}
+.checks.one{grid-template-columns:1fr}
+.act{grid-template-columns:1fr}
+.act .opts{display:none;gap:6px 12px;flex-wrap:wrap;padding-left:27px}
+.act.on .opts{display:flex}
+.freq{flex-wrap:wrap}
+@media (min-width:700px){.act{grid-template-columns:minmax(0,1fr) auto}.act .opts{padding-left:0;justify-content:flex-end}}
+
+/* 맞춤 운동·식단 */
+.plan{margin-top:24px;background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--qc,var(--accent));border-radius:16px;padding:20px}
+.plan-head h2{font-family:var(--display);font-weight:400;font-size:28px;margin:2px 0 14px}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px}
+.plan-card{border:1px solid var(--line);border-radius:14px;padding:16px}
+.plan-card h3{margin:0 0 10px;font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pi{font-style:normal;font-family:var(--display);font-weight:400;font-size:13px;color:#fff;border-radius:6px;padding:1px 8px}
+.pi.ex{background:var(--warm)}.pi.food{background:var(--good)}
+.blk{margin-top:12px}
+.blk-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px dashed var(--line);padding-bottom:4px;margin-bottom:8px}
+.blk-h span{font-size:13px;color:var(--qc,var(--accent));font-weight:600}
+.moves{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.mv{margin:0;display:flex;gap:8px;align-items:center;background:var(--bg);border-radius:12px;padding:6px 10px 6px 4px}
+.mv svg{flex:none;background:#fff;border-radius:10px}
+.mv figcaption{display:flex;flex-direction:column;line-height:1.35;min-width:0;word-break:keep-all}
+.mv b{font-size:14px}
+.mv .dose{font-size:13px;font-weight:700;color:var(--qc,var(--accent))}
+.mv small{font-size:11.5px;color:var(--muted)}
+.warn{font-size:13px;background:var(--alert-soft);color:var(--alert);border-radius:10px;padding:8px 12px;margin:12px 0 0}
+.tray{background:#fff;border-radius:12px;padding:6px}
+.tray svg{display:block;width:100%;height:auto}
+.legend{margin:8px 0 0;padding:0;list-style:none;counter-reset:n;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 12px}
+.legend li{counter-increment:n;font-size:14px;display:flex;gap:6px;align-items:baseline}
+.legend li::before{content:counter(n);flex:none;width:20px;height:20px;border-radius:50%;background:var(--qc,var(--accent));color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;transform:translateY(3px)}
+.legend span{color:var(--muted);font-size:12.5px}
+.point{font-weight:700;margin:10px 0 8px}
+.nut{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.nut div{background:var(--good-soft);border-radius:10px;padding:8px 10px}
+.nut b{display:block;font-size:20px;font-variant-numeric:tabular-nums;color:var(--good)}
+.nut span{font-size:12px;color:var(--muted)}
+.day{display:grid;gap:4px;margin-top:10px}
+.day div{display:grid;grid-template-columns:44px 1fr;gap:8px;font-size:13.5px;border-bottom:1px solid var(--line);padding:5px 0}
+.day b{color:var(--good)}
+.ios-tip{display:none;font-size:13.5px;background:#FEF7B8;color:#191919;border-radius:10px;padding:8px 12px;margin-bottom:8px}
+.preview.ios .ios-tip{display:block}
+.preview img{-webkit-touch-callout:default}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand">튼튼<span>하조</span></div>
+      <p class="sub">뼈 건강(FRAX 12문항)과 활동량(MET)을 따로 계산해 나의 결과군을 찾아요. 입력할 때마다 오른쪽 결과가 바로 바뀌어요. 진단이 아닌 생활습관 점검이에요.</p>
+    </div>
+    <div class="toolbar">
+      <span class="note" id="sampleNote">예시 응답(52세 남성)이 들어가 있어요</span>
+      <button class="ghost" id="resetBtn" type="button">모두 지우고 새로 하기</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <main>
+      <!-- PART 1: Y축 -->
+      <section class="part" aria-labelledby="p1">
+        <div class="part-head"><span class="part-no">01</span><h2 id="p1">뼈 건강 · FRAX 12문항</h2></div>
+        <p class="hint">세계보건기구(WHO)가 만든 골절 위험 예측 도구 FRAX의 12개 항목이에요. 결과의 세로축(뼈 건강)을 정해요.</p>
+
+        <div class="fields">
+          <label class="field"><span class="q">1</span><span class="fl">나이</span>
+            <span class="in"><input type="number" id="age" inputmode="numeric" min="10" max="110" placeholder="예: 52"><em>세</em></span>
+            <small>40~90세 기준으로 계산해요</small></label>
+          <div class="field"><span class="q">2</span><span class="fl">성별</span>
+            <div class="radios" id="sex">
+              <label><input type="radio" name="sex" value="F"><span>여성</span></label>
+              <label><input type="radio" name="sex" value="M"><span>남성</span></label>
+            </div></div>
+          <label class="field"><span class="q">3</span><span class="fl">몸무게</span>
+            <span class="in"><input type="number" id="w" inputmode="decimal" min="20" max="250" placeholder="예: 65"><em>kg</em></span></label>
+          <label class="field"><span class="q">4</span><span class="fl">키</span>
+            <span class="in"><input type="number" id="h" inputmode="decimal" min="100" max="230" placeholder="예: 170"><em>cm</em></span>
+            <small id="bmiOut">BMI는 자동으로 계산돼요</small></label>
+        </div>
+
+        <div class="group-label">5~11. 해당하는 것을 모두 체크하세요</div>
+        <div class="checks one" id="fraxChecks"></div>
+
+        <div class="group-label">12. 골밀도 검사 결과 (T-점수)</div>
+        <div class="radios" id="bmd"></div>
+      </section>
+
+      <!-- PART 2: X축 -->
+      <section class="part" aria-labelledby="p2">
+        <div class="part-head"><span class="part-no">02</span><h2 id="p2">운동·활동 · MET</h2></div>
+        <p class="hint">평소 하는 활동을 모두 체크하고, 일주일에 몇 번 · 한 번에 얼마나 하는지 고르세요. 결과의 가로축(활동량)을 정해요.</p>
+        <div id="actList"></div>
+      </section>
+
+      <!-- PART 3: 식품 가이드 -->
+      <section class="part" aria-labelledby="p3">
+        <div class="part-head"><span class="part-no">03</span><h2 id="p3">식습관</h2></div>
+        <p class="hint">결과군에는 영향을 주지 않고, 맞춤 식품 가이드를 만드는 데 써요.</p>
+        <div class="group-label">잘하고 있는 것<span class="tag good">뼈에 좋아요</span></div>
+        <div class="checks" id="foodGood"></div>
+        <div class="group-label">해당하는 습관<span class="tag bad">줄이면 좋아요</span></div>
+        <div class="checks" id="foodBad"></div>
+      </section>
+    </main>
+
+    <aside class="result" id="result" aria-live="polite">
+      <div class="res-head">
+        <div class="res-kicker">나의 결과군</div>
+        <div class="res-name" id="resName">—</div>
+        <div class="res-tag" id="resTag"></div>
+        <p class="res-line" id="resLine"></p>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="sRisk">0점</b><span>뼈 위험 점수 · 세로축</span></div>
+        <div class="stat"><b id="sMet">0</b><span>주간 MET-분 · 가로축</span></div>
+        <div class="stat"><b id="sFood">0/6</b><span>뼈 식습관</span></div>
+      </div>
+      <div class="chart"><svg id="quad" viewBox="0 0 360 296" role="img" aria-label="4분면 결과 위치"></svg></div>
+      <div class="axes">
+        <div class="axis bone"><h3><i>1</i>현재 뼈 건강 방향성</h3><div id="outBone"></div></div>
+        <div class="axis ex"><h3><i>2</i>맞춤 운동 처방</h3><div id="outEx"></div></div>
+        <div class="axis food"><h3><i>3</i>맞춤 식품 가이드</h3><div id="outFood"></div></div>
+      </div>
+      <div class="send">
+        <h3>카카오톡으로 결과 보내기</h3>
+        <div class="mini">내 결과를 카드뉴스 이미지 한 장으로 만들어 보내요.</div>
+        <div class="row">
+          <button class="btn-kakao" id="kakaoBtn" type="button">카카오톡으로 보내기</button>
+          <button class="btn-line" id="saveBtn" type="button">이미지로 저장</button>
+        </div>
+        <div class="toast" id="toast" role="status"></div>
+        <div class="preview" id="preview"><div class="ios-tip">📱 이미지를 <b>길게 누르고</b> → <b>공유</b> → <b>카카오톡</b>을 고르면 바로 보낼 수 있어요.</div><img id="previewImg" alt="내 결과 카드뉴스 이미지"><div class="mini" style="margin-top:6px">저장이 안 되면 이미지를 길게 누르거나 오른쪽 클릭해서 저장하세요.</div></div>
+        <div class="mini" style="margin-top:14px"><b>튼튼하조 챗봇으로 받기</b> · 카카오톡 채널에 아래 결과 코드를 보내면 운동·식품 카드뉴스 4장을 받아요.</div>
+        <div class="codebox"><code id="resCode"></code><button class="btn-line" id="copyBtn" type="button" style="flex:none">복사</button></div>
+        <div class="row" id="chRow" hidden><a class="btn-line" id="chLink" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">카카오톡 채널 열기</a></div>
+      </div>
+      <p class="disc">이 결과는 진단이 아닌 생활습관 점검이에요. 뼈 위험 점수는 FRAX 항목으로 만든 점검용 점수이며, 실제 FRAX 골절 확률과는 달라요. 정확한 뼈 상태는 의료기관의 골밀도 검사로 확인할 수 있어요.</p>
+    </aside>
+  </div>
+
+  <!-- 맞춤 운동·식단 (결과군에 따라 바뀜) -->
+  <section class="plan" id="plan" aria-labelledby="planTitle">
+    <div class="plan-head">
+      <div class="res-kicker" id="planKicker">나의 결과군 맞춤</div>
+      <h2 id="planTitle">이렇게 운동하고, 이렇게 드세요</h2>
+    </div>
+    <div class="plan-grid">
+      <div class="plan-card"><h3><i class="pi ex">운동</i><span id="rtTitle"></span></h3><div id="rtBody"></div></div>
+      <div class="plan-card"><h3><i class="pi food">식단</i><span id="mealTitle"></span></h3><div id="mealBody"></div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* 튼튼하조 뼈 건강 체크 — 공통 계산 모듈
+ * 웹 결과 창, 카카오톡 챗봇, 카드뉴스가 모두 이 파일 하나를 써요.
+ * 문항·점수·결과 문구를 바꾸려면 여기만 고치면 돼요. (웹은 build-web.js로 다시 묶어요)
+ *
+ * Y축 뼈 건강: FRAX 12개 입력 항목 기반 위험 점수 (0점이 가장 튼튼, 3점 이하 = 튼튼 / 4점 이상 = 관리 필요)
+ *   ※ 실제 FRAX 10년 골절 확률 계산식이 아니라, FRAX 항목으로 만든 점검용 점수예요.
+ * X축 활동량: IPAQ 방식 주간 MET-분 (걷기 3.3 · 중강도 4.0 · 고강도 8.0 × 분 × 일)
+ *   600 MET-분 이상 = 활동 충분
+ * 두 축은 서로 영향을 주지 않아요. 식습관 문항은 식품 가이드에만 써요.
+ */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.TT = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+
+  /* ---------- Y축: FRAX 문항 ---------- */
+  // 1 나이, 2 성별, 3 체중, 4 신장은 입력값. 5~11은 예/아니오, 12는 골밀도.
+  const FRAX = [
+    { id: "frac", no: 5, label: "성인이 된 뒤 가볍게 넘어지거나 부딪혀 뼈가 부러진 적이 있어요",
+      sub: "서 있는 높이에서 넘어지는 정도의 약한 충격, 또는 저절로 생긴 골절", short: "이전 골절", pts: 3 },
+    { id: "parent", no: 6, label: "부모님 중 한 분이라도 엉덩이뼈(고관절)가 부러진 적이 있어요", short: "부모 고관절 골절", pts: 2 },
+    { id: "smoke", no: 7, label: "지금 담배를 피워요", short: "현재 흡연", pts: 1 },
+    { id: "steroid", no: 8, label: "스테로이드 약을 지금 먹고 있거나, 3개월 넘게 먹은 적이 있어요",
+      sub: "먹는 약(프레드니솔론 하루 5mg 이상 기준). 바르는 연고·흡입기는 해당 없어요", short: "스테로이드", pts: 2 },
+    { id: "ra", no: 9, label: "의사에게 류마티스 관절염 진단을 받았어요", short: "류마티스 관절염", pts: 1 },
+    { id: "secondary", no: 10, label: "골다공증을 일으킬 수 있는 질환이 있어요",
+      sub: "제1형 당뇨, 성인 골형성부전증, 치료하지 않은 갑상선기능항진증, 성선기능저하증 또는 45세 전 조기 폐경, 만성 영양실조·흡수장애, 만성 간질환", short: "이차성 골다공증", pts: 1 },
+    { id: "alcohol", no: 11, label: "술을 하루 3단위 이상 마셔요",
+      sub: "소주 반 병, 맥주 3잔 정도 이상", short: "하루 3잔 이상 음주", pts: 1 }
+  ];
+  const BMD = [
+    { id: "u", label: "모름 · 안 해봤어요", pts: 0 },
+    { id: "n", label: "정상 (T-점수 −1 이상)", short: "골밀도 정상", pts: 0 },
+    { id: "p", label: "골감소증 (−1 ~ −2.5)", short: "골감소증", pts: 2 },
+    { id: "o", label: "골다공증 (−2.5 이하)", short: "골다공증", pts: 4 }
+  ];
+  const BONE_CUT = 3; // 이 점수 이하면 튼튼
+
+  /* ---------- X축: 활동 (IPAQ 강도) ---------- */
+  const ACTS = [
+    { int: "걷기", met: 3.3, items: [
+      { id: "walk", label: "출퇴근·장보기로 걷기", short: "생활 걷기", tags: [] },
+      { id: "stroll", label: "산책·반려견 산책", short: "산책", tags: [] }
+    ] },
+    { int: "중강도", met: 4.0, items: [
+      { id: "brisk", label: "빠르게 걷기", short: "빠르게 걷기", tags: [] },
+      { id: "stairs", label: "계단 오르기", short: "계단", tags: ["strength", "impact"] },
+      { id: "home", label: "맨몸운동·홈트·밴드 운동", short: "맨몸·홈트", tags: ["strength"] },
+      { id: "yoga", label: "요가·필라테스", short: "요가·필라테스", tags: ["balance", "strength"] },
+      { id: "taichi", label: "태극권·체조·스트레칭", short: "태극권·체조", tags: ["balance"] },
+      { id: "bike", label: "자전거(가볍게)", short: "자전거", tags: [] },
+      { id: "swim", label: "수영·아쿠아로빅(천천히)", short: "수영", tags: [] },
+      { id: "golf", label: "골프", short: "골프", tags: [] },
+      { id: "dance", label: "댄스·라인댄스", short: "댄스", tags: ["impact", "balance"] },
+      { id: "chores", label: "청소·텃밭처럼 몸 쓰는 일", short: "집안일·텃밭", tags: [] }
+    ] },
+    { int: "고강도", met: 8.0, items: [
+      { id: "weight", label: "웨이트 트레이닝(헬스·기구)", short: "웨이트", tags: ["strength"] },
+      { id: "hiit", label: "크로스핏·HIIT·서킷", short: "크로스핏·HIIT", tags: ["strength", "impact"] },
+      { id: "run", label: "달리기·조깅", short: "달리기", tags: ["impact"] },
+      { id: "hike", label: "등산", short: "등산", tags: ["impact"] },
+      { id: "ball", label: "축구·농구·풋살", short: "축구·농구", tags: ["impact"] },
+      { id: "racket", label: "테니스·배드민턴·스쿼시", short: "테니스·배드민턴", tags: ["impact"] },
+      { id: "rope", label: "줄넘기·점프 운동", short: "줄넘기", tags: ["impact"] },
+      { id: "spin", label: "스피닝·빠른 자전거", short: "스피닝", tags: [] },
+      { id: "aero", label: "에어로빅·줌바", short: "에어로빅", tags: ["impact"] }
+    ] }
+  ];
+  ACTS.forEach(g => g.items.forEach(a => { a.met = g.met; a.int = g.int; }));
+  const ALL_ACTS = ACTS.flatMap(g => g.items);
+  const FREQ = [{ l: "주 1~2회", s: "주1~2", d: 1.5 }, { l: "주 3~4회", s: "주3~4", d: 3.5 }, { l: "주 5회 이상", s: "주5+", d: 6 }];
+  const DUR = [{ l: "30분", m: 30 }, { l: "1시간", m: 60 }, { l: "1시간 30분+", s: "1시간반+", m: 90 }];
+  const MET_CUT = 600;
+
+  /* ---------- 식습관 (점수에는 넣지 않아요) ---------- */
+  const GOOD = [
+    { id: "dairy", label: "우유·요거트·치즈를 거의 매일 먹어요", short: "유제품", key: "calcium",
+      todo: "칼슘 식품을 하루 2~3번", ex: "우유 1컵, 플레인 요거트 1개, 치즈 1장", ev: "요거트·치즈 섭취가 많을수록 고관절 골절 위험이 낮았어요 (Bian 2018)" },
+    { id: "cafood", label: "멸치·두부·녹색 채소를 자주 먹어요", short: "멸치·두부", key: "calcium",
+      todo: "유제품이 힘들면 다른 칼슘 식품으로", ex: "멸치볶음, 두부, 케일·청경채" },
+    { id: "vitd", label: "비타민D 영양제를 먹거나, 낮에 20분 이상 햇볕을 쬐어요", short: "비타민D·햇볕", key: "vitd",
+      todo: "비타민D를 식품과 햇볕으로", ex: "고등어·연어, 달걀 노른자, 낮 산책 20분", ev: "칼슘과 비타민D를 함께 먹을 때 고관절 골절이 16% 줄었어요. 비타민D만 먹을 때는 효과가 없었어요 (Yao 2019)" },
+    { id: "protein", label: "끼니마다 고기·생선·달걀·콩 중 하나는 먹어요", short: "단백질", key: "protein",
+      todo: "끼니마다 단백질 한 가지", ex: "달걀, 생선, 닭가슴살, 두부", ev: "단백질을 넉넉히 먹으면 고관절 골절이 11~16% 낮았어요 (Groenendijk 2019)" },
+    { id: "soy", label: "콩 식품(두부·두유·된장)을 주 3회 이상 먹어요", short: "콩 식품", key: "soy",
+      todo: "콩 식품 하루 1번", ex: "두부 반 모, 두유 1팩, 청국장", ev: "폐경 후 여성에서 콩 이소플라본이 골밀도 감소를 늦췄어요 (RCT 메타분석, 2020)" },
+    { id: "veg", label: "채소·과일을 매끼 챙겨 먹어요", short: "채소·과일", key: "pattern",
+      todo: "채소·과일 매끼", ex: "제철 채소 반찬 2가지, 과일 하루 1~2번", ev: "채소·과일·생선 위주 식단은 골절 위험이 낮았어요 (Fabiani 2019)" }
+  ];
+  const BAD = [
+    { id: "coffee", label: "커피를 하루 3잔 넘게 마셔요", short: "커피 3잔+", fix: "커피는 하루 2~3잔까지" },
+    { id: "salty", label: "짠 국물·젓갈·장아찌를 자주 먹어요", short: "짠 음식", fix: "국물은 건더기 위주로" },
+    { id: "soda", label: "탄산음료를 자주 마셔요", short: "탄산음료", fix: "탄산음료 대신 우유·두유·물" }
+  ];
+  const FRAX_FIX = { smoke: "금연 (보건소 금연클리닉 무료)", alcohol: "술은 하루 2잔 이내로" };
+
+  /* ---------- 결과군 (번호 = 4분면 위치) ----------
+   *   ② 왼쪽 위  |  ① 오른쪽 위
+   *   ③ 왼쪽 아래 |  ④ 오른쪽 아래
+   *   위 = 뼈 튼튼, 오른쪽 = 활동 충분
+   */
+  const Q = {
+    q1: { no: "①", name: "튼튼 유지형", tag: "뼈 튼튼 · 활동 충분", color: "#2f7d4f", soft: "#e3f1e8",
+      line: "지금처럼만 해도 충분해요. 한 단계만 더 올려봐요.",
+      bone: "위험 요인이 적고 몸도 잘 움직이고 있어요. 지금의 습관이 앞으로 쓸 뼈 저축이 됩니다.",
+      goal: "뼈 저축 늘리기", plan: ["근력운동 주 2~3회 (조금 힘든 강도)", "제자리 점프·줄넘기 10~20회, 주 3회", "지금 하는 유산소 활동은 그대로"],
+      moves: "스쿼트 · 런지 · 푸시업 · 제자리 점프",
+      food: "칼슘과 단백질 기본기를 지키는 데 집중하세요." },
+    q2: { no: "②", name: "움직임 충전형", tag: "뼈 튼튼 · 활동 부족", color: "#1d6a86", soft: "#dcebf0",
+      line: "뼈는 아직 괜찮아요. 움직임만 채우면 돼요.",
+      bone: "지금은 위험 요인이 적은 좋은 출발점이에요. 다만 움직임이 적으면 뼈를 지키는 자극도 줄어들어요.",
+      goal: "주 600 MET-분 + 근력 습관", plan: ["빠르게 걷기 하루 30분, 주 5일", "맨몸 근력운동 주 2회"],
+      moves: "계단 오르기 · 의자에서 일어나기 · 베이비 점프",
+      food: "칼슘과 단백질 기본기를 지키는 데 집중하세요." },
+    q3: { no: "③", name: "집중 케어형", tag: "뼈 관리 필요 · 활동 부족", color: "#b5462f", soft: "#f7e3de",
+      line: "넘어지지 않는 몸 만들기부터 시작해요.",
+      bone: "뼈에 부담이 되는 요인이 있고 활동량도 적은 편이에요. 지금 시작하면 충분히 바꿀 수 있어요.",
+      goal: "낙상 예방이 1순위", plan: ["균형·기능 운동 주 3회", "가벼운 근력운동 주 2회, 강도는 천천히", "걷기를 하루 10분씩 늘리기"],
+      moves: "벽 짚고 한 발 서기 · 일자 걷기 · 태극권 · 의자 스쿼트",
+      food: "칼슘과 비타민D를 함께 챙기고, 술·담배 줄이기부터 시작하세요. 보충제는 병원에서 상담해 보세요." },
+    q4: { no: "④", name: "습관 보완형", tag: "뼈 관리 필요 · 활동 충분", color: "#d9772b", soft: "#fbeadb",
+      line: "운동은 잘하고 있어요. 뼈에 맞게 다듬어요.",
+      bone: "몸은 잘 움직이고 있지만 뼈에 부담이 되는 요인이 쌓여 있어요. 운동을 뼈에 맞게 조금 바꾸고 생활습관을 다듬으면 좋아요.",
+      goal: "운동을 뼈에 맞게 바꾸기", plan: ["유산소 일부를 근력·체중부하 운동으로 바꾸기", "균형운동 주 2회 추가"],
+      moves: "근력운동 · 빠르게 걷기 · 한 발 서기",
+      food: "칼슘과 비타민D를 함께 챙기고, 술·담배 줄이기부터 시작하세요. 보충제는 병원에서 상담해 보세요." }
+  };
+
+  /* ---------- 맞춤 운동 루틴 ----------
+   * 동작 id는 그림(art.js)의 이름과 같아요. 세트·횟수는 dose에 적어요.
+   */
+  const MOVES = {
+    squat:    { name: "스쿼트", cue: "엉덩이를 뒤로 빼며 허벅지가 바닥과 평행할 때까지" },
+    chair:    { name: "의자 스쿼트", cue: "의자에 살짝 앉았다가 손 짚지 않고 일어나기" },
+    lunge:    { name: "런지", cue: "한 발 앞으로 내딛고 뒷무릎을 바닥 가까이" },
+    deadlift: { name: "데드리프트", cue: "허리는 곧게, 엉덩이를 접었다 펴며 들어 올리기" },
+    press:    { name: "오버헤드 프레스", cue: "어깨에서 머리 위로 곧게 밀어 올리기" },
+    pushup:   { name: "푸시업", cue: "몸을 일직선으로, 힘들면 무릎을 대고" },
+    wallpush: { name: "벽 푸시업", cue: "벽에 손을 짚고 가슴을 벽 쪽으로" },
+    row:      { name: "밴드 당기기", cue: "밴드를 몸 쪽으로 당기며 날개뼈 모으기" },
+    bridge:   { name: "브릿지", cue: "누워서 엉덩이를 들어 어깨~무릎 일직선" },
+    calf:     { name: "발뒤꿈치 들기", cue: "까치발로 올라갔다 천천히 내리기" },
+    jump:     { name: "제자리 점프", cue: "가볍게 뛰고 무릎을 굽혀 부드럽게 착지" },
+    superman: { name: "엎드려 상체 들기", cue: "엎드려 가슴을 살짝 들어 등 근육 쓰기" },
+    oneleg:   { name: "한 발 서기", cue: "처음엔 벽이나 의자를 짚고" },
+    tandem:   { name: "일자 걷기", cue: "앞발 뒤꿈치를 뒷발 앞꿈치에 붙여 걷기" },
+    walk:     { name: "빠르게 걷기", cue: "숨이 조금 차고 대화는 가능한 속도" },
+    stairs:   { name: "계단 오르기", cue: "난간을 잡고 한 칸씩" }
+  };
+  const ROUTINE = {
+    q1: { title: "뼈 저축 늘리기", blocks: [
+      { name: "고강도 근력", freq: "주 2~3회 · 30분", moves: [["deadlift", "5회 × 5세트"], ["squat", "5회 × 5세트"], ["press", "5회 × 5세트"]],
+        note: "5회 겨우 들 수 있는 무게(1RM의 80~85%). 처음 2주는 가볍게 자세부터" },
+      { name: "충격 운동", freq: "주 3~4회 · 5분", moves: [["jump", "10회 × 5세트"]], note: "세트 사이 15초 쉬기" },
+      { name: "유산소", freq: "지금처럼", moves: [["walk", "하던 대로 유지"]] }
+    ], ev: "고강도 근력+충격 운동 8개월 뒤 허리·엉덩이뼈 골밀도가 늘었어요 (LIFTMOR, Watson 2018)" },
+    q2: { title: "주 600 MET-분 + 근력 습관", blocks: [
+      { name: "걷기", freq: "주 5일 · 30분", moves: [["walk", "30분"]], note: "이것만으로 주 600 MET-분" },
+      { name: "맨몸 근력", freq: "주 2회 · 20분", moves: [["squat", "12회 × 3세트"], ["pushup", "10회 × 3세트"], ["bridge", "12회 × 3세트"], ["calf", "15회 × 3세트"]] },
+      { name: "충격 운동", freq: "주 3회 · 3분", moves: [["jump", "10회 × 3세트"]] }
+    ], ev: "걷기만으로는 골밀도 효과가 작고, 근력·충격 운동을 함께 할 때 효과가 커요 (Zhao 2015)" },
+    q3: { title: "넘어지지 않는 몸 만들기", blocks: [
+      { name: "균형", freq: "주 3회 · 10분", moves: [["oneleg", "10초 × 좌우 5번"], ["tandem", "10걸음 × 3번"]], note: "벽이나 의자 옆에서" },
+      { name: "가벼운 근력", freq: "주 2회 · 20분", moves: [["chair", "10회 × 2세트"], ["wallpush", "10회 × 2세트"], ["calf", "10회 × 2세트"], ["superman", "8회 × 2세트"]] },
+      { name: "걷기", freq: "매일", moves: [["walk", "하루 10분부터 조금씩 늘리기"]] }
+    ], ev: "균형·근력 운동은 넘어지는 횟수를 23~34% 줄였어요 (Sherrington, Cochrane 2019)",
+      avoid: "점프, 허리를 깊이 숙이거나 비트는 동작(윗몸일으키기 등)은 피하세요" },
+    q4: { title: "운동을 뼈에 맞게 바꾸기", blocks: [
+      { name: "근력", freq: "주 2~3회 · 30분", moves: [["squat", "10회 × 3세트"], ["deadlift", "8회 × 3세트"], ["row", "12회 × 3세트"], ["superman", "10회 × 2세트"]],
+        note: "10회가 조금 힘든 무게. 유산소 시간 일부를 여기로" },
+      { name: "균형", freq: "주 2회 · 10분", moves: [["oneleg", "30초 × 좌우 3번"], ["tandem", "10걸음 × 3번"]] },
+      { name: "체중 부하 유산소", freq: "주 3회", moves: [["stairs", "10분"], ["walk", "20분"]] }
+    ], ev: "지도자와 함께하는 근력·균형 운동은 골절 위험을 크게 낮췄어요 (Hoffmann 2022)",
+      avoid: "골절 경험이 있으면 점프는 빼고, 허리를 깊이 숙이는 동작은 피하세요" }
+  };
+
+  /* ---------- 추천 한끼 · 하루 식단 ----------
+   * tray: 식판 칸 순서 = [밥, 국, 반찬1, 반찬2, 반찬3, 곁들임]
+   * kind는 그림 모양 (rice·soup·fish·meat·tofu·anchovy·greens·egg·milk·yogurt·fruit·kimchi)
+   * 칼슘 양은 대략값이에요(식품마다 차이 있음).
+   */
+  const MEAL = {
+    q1: { title: "근력 회복 한끼", tray: [
+      { kind: "rice", name: "현미밥", note: "탄수화물" },
+      { kind: "soup", name: "소고기미역국", note: "단백질·칼슘" },
+      { kind: "fish", name: "연어구이", note: "단백질·비타민D" },
+      { kind: "tofu", name: "두부조림", note: "칼슘·콩단백" },
+      { kind: "greens", name: "시금치나물", note: "비타민K" },
+      { kind: "milk", name: "우유 1컵", note: "칼슘 약 200mg" }
+    ], point: "운동 후 2시간 안에 단백질 20~30g", day: [
+      ["아침", "그릭요거트 + 바나나 + 견과류"], ["점심", "현미밥, 소고기미역국, 연어구이, 두부조림, 시금치나물"],
+      ["간식", "우유 1컵 또는 삶은 달걀 2개 (운동 후)"], ["저녁", "잡곡밥, 닭가슴살 채소볶음, 멸치볶음, 케일쌈"]
+    ] },
+    q2: { title: "뼈 기본기 한끼", tray: [
+      { kind: "rice", name: "잡곡밥", note: "탄수화물" },
+      { kind: "soup", name: "두부된장국", note: "콩단백·칼슘" },
+      { kind: "fish", name: "고등어구이", note: "단백질·비타민D" },
+      { kind: "anchovy", name: "멸치볶음", note: "칼슘 약 130mg" },
+      { kind: "greens", name: "브로콜리", note: "비타민C·K" },
+      { kind: "yogurt", name: "플레인 요거트", note: "칼슘 약 120mg" }
+    ], point: "칼슘 음식을 하루 2~3번 나눠서", day: [
+      ["아침", "우유 1컵 + 통밀빵 + 삶은 달걀"], ["점심", "잡곡밥, 두부된장국, 고등어구이, 멸치볶음, 브로콜리"],
+      ["간식", "플레인 요거트 + 과일"], ["저녁", "현미밥, 닭고기 채소찜, 청경채나물, 김치 조금"]
+    ] },
+    q3: { title: "칼슘+비타민D 집중 한끼", tray: [
+      { kind: "rice", name: "잡곡밥", note: "부드럽게 지어서" },
+      { kind: "soup", name: "순두부국", note: "콩단백·칼슘" },
+      { kind: "egg", name: "달걀찜", note: "단백질·비타민D" },
+      { kind: "anchovy", name: "멸치볶음", note: "칼슘 약 130mg" },
+      { kind: "greens", name: "케일·청경채 나물", note: "칼슘·비타민K" },
+      { kind: "milk", name: "우유 1컵", note: "칼슘 약 200mg" }
+    ], point: "칼슘과 비타민D를 꼭 함께, 국물은 싱겁게", day: [
+      ["아침", "우유에 탄 오트밀 + 바나나"], ["점심", "잡곡밥, 순두부국, 달걀찜, 멸치볶음, 케일나물"],
+      ["간식", "치즈 1장 + 두유 1팩"], ["저녁", "잡곡밥, 고등어조림(싱겁게), 두부부침, 시금치나물"]
+    ] },
+    q4: { title: "습관 바로잡는 한끼", tray: [
+      { kind: "rice", name: "현미밥", note: "탄수화물" },
+      { kind: "soup", name: "맑은 콩나물국", note: "싱겁게" },
+      { kind: "meat", name: "닭가슴살구이", note: "단백질" },
+      { kind: "tofu", name: "두부부침", note: "칼슘·콩단백" },
+      { kind: "greens", name: "청경채무침", note: "칼슘·비타민K" },
+      { kind: "yogurt", name: "요거트 + 블루베리", note: "칼슘 약 120mg" }
+    ], point: "술 대신 우유·두유, 짠 국물은 건더기만", day: [
+      ["아침", "두유 1팩 + 삶은 달걀 2개 + 사과"], ["점심", "현미밥, 콩나물국, 닭가슴살구이, 두부부침, 청경채무침"],
+      ["간식", "요거트 + 블루베리"], ["저녁", "잡곡밥, 연어 스테이크, 브로콜리, 멸치볶음"]
+    ] }
+  };
+
+  /* 개인 영양 목표: 한국인 영양소 섭취기준(2020) 칼슘 권장섭취량·비타민D 충분섭취량,
+   * 단백질은 뼈 건강 권고(ESCEO 2018: 체중 1kg당 1.0~1.2g) */
+  function nutrition(s, r) {
+    const a = s.age ?? 40, F = s.sex === "F";
+    const ca = s.sex == null ? 800 : F ? (a < 50 ? 700 : 800) : (a < 50 ? 800 : a < 65 ? 750 : 700);
+    const vd = a >= 65 ? 15 : 10;
+    const per = (a >= 65 || !r.boneOK) ? 1.2 : 1.0;
+    const pro = s.w ? Math.round(s.w * per) : null;
+    return { ca, vd, per, pro,
+      caEx: "우유 1컵(약 200mg) + 요거트 1개(약 120mg) + 멸치볶음(약 130mg) + 두부 반 모(약 150mg) + 채소 반찬",
+      proText: pro ? `하루 ${pro}g (체중 ${s.w}kg × ${per}g)` : `체중 1kg당 ${per}g` };
+  }
+
+  /* ---------- 상태 ---------- */
+  // acts: { id: [freq, dur] }
+  function emptyState() { return { age: null, sex: null, h: null, w: null, frax: {}, bmd: "u", acts: {}, good: {}, bad: {} }; }
+
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  function bmiOf(s) { return s.h > 0 && s.w > 0 ? s.w / Math.pow(s.h / 100, 2) : null; }
+
+  /* ---------- 계산 ---------- */
+  function boneScore(s) {
+    const items = []; // [이름, 점수]
+    if (s.age != null) {
+      const a = clamp(s.age, 40, 90);
+      const p = a < 50 ? 0 : a < 60 ? 1 : a < 70 ? 2 : a < 80 ? 3 : 4;
+      if (p) items.push([`나이 ${s.age}세`, p]);
+    }
+    if (s.sex === "F") items.push(["여성", 1]);
+    const bmi = bmiOf(s);
+    if (bmi != null && bmi < 18.5) items.push([`저체중 BMI ${bmi.toFixed(1)}`, 2]);
+    else if (bmi != null && bmi < 20) items.push([`BMI ${bmi.toFixed(1)}`, 1]);
+    const bmdKnown = s.bmd && s.bmd !== "u";
+    FRAX.forEach(f => {
+      if (!s.frax[f.id]) return;
+      // FRAX처럼, 골밀도 결과를 넣으면 이차성 골다공증은 따로 더하지 않아요
+      if (f.id === "secondary" && bmdKnown) return;
+      items.push([f.short, f.pts]);
+    });
+    const b = BMD.find(x => x.id === s.bmd);
+    if (b && b.pts) items.push([b.short, b.pts]);
+    const score = items.reduce((t, [, p]) => t + p, 0);
+    return { score, items, bmi };
+  }
+  function actMet(s) {
+    let met = 0; const tags = new Set(); const rows = [];
+    ALL_ACTS.forEach(a => {
+      const v = s.acts[a.id]; if (!v) return;
+      const m = a.met * DUR[v[1]].m * FREQ[v[0]].d;
+      met += m; a.tags.forEach(t => tags.add(t));
+      rows.push([a.short, Math.round(m)]);
+    });
+    return { met: Math.round(met), tags, rows };
+  }
+  function calc(s) {
+    const bone = boneScore(s), act = actMet(s);
+    const boneOK = bone.score <= BONE_CUT, active = act.met >= MET_CUT;
+    const q = boneOK ? (active ? "q1" : "q2") : (active ? "q4" : "q3");
+    const foodScore = GOOD.filter(g => s.good[g.id]).length;
+    return { risk: bone.score, factors: bone.items, bmi: bone.bmi, met: act.met, tags: act.tags, actRows: act.rows, boneOK, active, q, foodScore };
+  }
+
+  /* 결과 문구 (웹·챗봇 공통) */
+  function buildResult(s) {
+    const r = calc(s), d = Q[r.q];
+    const age = s.age;
+    const stage = age == null ? "" :
+      age < 40 ? "지금은 뼈 저축기예요. 뼈의 양은 30대까지 늘어요. 이때 쌓은 만큼 평생 쓰게 돼요." :
+      age < 50 ? "지금은 뼈 유지기예요. 50세 무렵까지는 뼈의 양이 유지돼요. 줄어들기 전에 지켜둘 때예요." :
+      "지금은 뼈가 줄어드는 시기예요. 50세 이후에는 뼈의 양이 줄고, 여성은 폐경 전후로 더 빨리 줄어요.";
+    const needBmd = s.bmd === "u" && (!r.boneOK || (s.sex === "F" && age >= 50) || age >= 65);
+    const bmd = needBmd ? "건강검진 때 골밀도 검사를 받아보세요. 국가건강검진에서 여성은 54·60·66세에 받을 수 있어요." :
+      (s.bmd === "o" ? "골다공증 결과가 있다면 전문의 상담과 치료가 먼저예요. 운동 강도도 의사와 상의하세요." : "");
+
+    const tips = [];
+    if (r.met < MET_CUT) {
+      const n = Math.ceil((MET_CUT - r.met) / (4 * 30));
+      tips.push(`지금 주 ${r.met.toLocaleString("ko-KR")} MET-분이에요. 빠르게 걷기 30분을 주 ${n}회 더 하면 기준(${MET_CUT})에 닿아요.`);
+    }
+    if (!r.tags.has("strength")) tips.push(r.q === "q3" ? "의자 스쿼트처럼 가벼운 근력운동부터 주 2회 해보세요." : "근력운동을 주 2회부터 시작해 보세요.");
+    if (!r.tags.has("impact") && r.boneOK && !s.frax.frac) tips.push("점프·계단처럼 뼈에 충격을 주는 운동을 더하면 효과가 커져요. 근력운동과 함께 할 때 가장 좋아요.");
+    if ((!r.boneOK || age >= 65) && !r.tags.has("balance")) tips.push("균형운동(한 발 서기, 태극권)을 더해 보세요. 넘어지는 횟수를 줄여줘요.");
+    const caution = (s.frax.frac || s.bmd === "o" || r.q === "q3") ? "골절 경험이 있거나 골다공증이 있으면 점프와 허리를 깊이 숙이는 동작은 피하고, 균형·자세 운동부터 시작하세요." : "";
+    const exEv = r.boneOK ? "근력운동에 점프·체중부하 운동을 더할 때 골밀도가 유의하게 좋아졌어요 (Zhao 2015)"
+      : "운동은 넘어지는 횟수를 23% 줄였어요 (Cochrane 2019). 지도자가 함께하는 운동은 골절 위험을 더 크게 낮췄어요 (Hoffmann 2022)";
+
+    const missing = []; const seen = new Set();
+    GOOD.forEach(g => {
+      if (s.good[g.id]) return;
+      if (g.key === "calcium" && (s.good.dairy || s.good.cafood)) return;
+      if (seen.has(g.key)) return; seen.add(g.key);
+      missing.push(g);
+    });
+    const reduce = [
+      ...["smoke", "alcohol"].filter(k => s.frax[k]).map(k => ({ fix: FRAX_FIX[k], scored: true })),
+      ...BAD.filter(b => s.bad[b.id]).map(b => ({ fix: b.fix }))
+    ];
+    const foodEv = (missing.find(m => m.ev) || GOOD[2]).ev;
+
+    const routine = ROUTINE[r.q], meal = MEAL[r.q];
+    const plan = { routine, meal, nut: nutrition(s, r),
+      // 골절 경험·골다공증이면 점프는 빼요
+      skipJump: !!(s.frax.frac || s.bmd === "o") };
+    return { r, d, plan, bone: { text: d.bone, stage, bmd }, ex: { goal: d.goal, plan: d.plan, moves: d.moves, tips, caution, ev: exEv },
+      food: { text: d.food, missing, reduce, ev: foodEv } };
+  }
+
+  /* ---------- 결과 코드 ----------
+   * 예: t52M175070-00100001-000000000000000000060000000-100000-000
+   *   t + 나이(2) + 성별 + 키(3) + 몸무게(3) - FRAX 7칸 + 골밀도 - 활동(칸마다 0=안함, 1~9=횟수×3+시간+1) - 좋은 식습관 6칸 - 줄일 습관 3칸
+   */
+  const BMD_CODE = { u: "0", n: "1", p: "2", o: "3" };
+  function encodeState(s) {
+    const pad = (v, n) => (v == null ? "x".repeat(n) : String(Math.round(v)).padStart(n, "0").slice(-n));
+    const bits = (list, obj) => list.map(i => (obj[i.id] ? "1" : "0")).join("");
+    const acts = ALL_ACTS.map(a => { const v = s.acts[a.id]; return v ? String(v[0] * 3 + v[1] + 1) : "0"; }).join("");
+    return `t${pad(s.age == null ? null : clamp(s.age, 0, 99), 2)}${s.sex || "x"}${pad(s.h, 3)}${pad(s.w, 3)}-${bits(FRAX, s.frax)}${BMD_CODE[s.bmd] || "0"}-${acts}-${bits(GOOD, s.good)}-${bits(BAD, s.bad)}`;
+  }
+  function decodeState(code) {
+    const re = new RegExp(`^t(\\d\\d|xx)([FMx])(\\d{3}|xxx)(\\d{3}|xxx)-([01]{${FRAX.length}})([0-3])-([0-9]{${ALL_ACTS.length}})-([01]{${GOOD.length}})-([01]{${BAD.length}})$`);
+    const m = re.exec(String(code || "").trim());
+    if (!m) return null;
+    const s = emptyState();
+    const num = v => (/x/.test(v) ? null : +v);
+    s.age = num(m[1]); s.sex = m[2] === "x" ? null : m[2]; s.h = num(m[3]); s.w = num(m[4]);
+    if (!s.h) s.h = null; if (!s.w) s.w = null;
+    FRAX.forEach((f, i) => { if (m[5][i] === "1") s.frax[f.id] = true; });
+    s.bmd = Object.keys(BMD_CODE).find(k => BMD_CODE[k] === m[6]) || "u";
+    ALL_ACTS.forEach((a, i) => { const v = +m[7][i]; if (v) s.acts[a.id] = [Math.floor((v - 1) / 3), (v - 1) % 3]; });
+    GOOD.forEach((g, i) => { if (m[8][i] === "1") s.good[g.id] = true; });
+    BAD.forEach((b, i) => { if (m[9][i] === "1") s.bad[b.id] = true; });
+    return s;
+  }
+
+  return { MOVES, ROUTINE, MEAL, nutrition, FRAX, BMD, BONE_CUT, ACTS, ALL_ACTS, FREQ, DUR, MET_CUT, GOOD, BAD, Q,
+    emptyState, bmiOf, boneScore, actMet, calc, buildResult, encodeState, decodeState };
+});
+
+</script>
+<script>
+/* 튼튼하조 그림 모음 — 운동 동작 픽토그램 + 추천 한끼 식판 (SVG 문자열)
+ * 웹 결과 창과 카드뉴스가 같이 써요. 사진 대신 직접 그린 그림이라 저작권 걱정이 없어요.
+ */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.TTART = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+
+  /* ---------- 운동 동작 ----------
+   * 120×120 칸, 오른쪽을 보는 옆모습. 바닥 y=110
+   * h 머리, s 어깨, p 엉덩이, k/f 무릎·발, e/w 팔꿈치·손 (두 번째 팔·다리는 k2 f2 e2 w2)
+   */
+  const POSE = {
+    squat:    { h: [56, 30], s: [52, 42], p: [36, 70], k: [64, 76], f: [58, 108], e: [70, 48], w: [90, 48] },
+    chair:    { h: [60, 28], s: [57, 40], p: [40, 66], k: [64, 70], f: [62, 108], e: [74, 46], w: [90, 46],
+                prop: '<path d="M14 72 H44 M16 72 V40 M18 72 V108 M42 72 V108" class="pr"/>' },
+    lunge:    { h: [60, 20], s: [60, 32], p: [60, 62], k: [84, 76], f: [88, 108], k2: [50, 98], f2: [28, 106], e: [70, 46], w: [64, 62] },
+    deadlift: { h: [86, 42], s: [76, 48], p: [44, 52], k: [52, 80], f: [50, 108], e: [74, 66], w: [72, 84],
+                prop: '<line x1="54" y1="86" x2="96" y2="86" class="bar"/><circle cx="66" cy="94" r="14" class="plate"/>' },
+    press:    { h: [60, 32], s: [60, 44], p: [60, 74], k: [60, 92], f: [60, 108], k2: [60, 92], f2: [60, 108], e: [44, 32], w: [44, 14], e2: [76, 32], w2: [76, 14],
+                prop: '<line x1="26" y1="14" x2="94" y2="14" class="bar"/><rect x="22" y="4" width="8" height="20" rx="2" class="plate"/><rect x="90" y="4" width="8" height="20" rx="2" class="plate"/>' },
+    pushup:   { h: [100, 72], s: [88, 80], p: [54, 92], k: [36, 98], f: [16, 104], e: [92, 94], w: [90, 108] },
+    wallpush: { h: [84, 32], s: [76, 42], p: [58, 68], k: [50, 88], f: [42, 108], e: [90, 52], w: [104, 44],
+                prop: '<line x1="108" y1="4" x2="108" y2="110" class="pr"/>' },
+    row:      { h: [52, 30], s: [52, 42], p: [50, 72], k: [58, 90], f: [54, 108], e: [44, 58], w: [66, 56],
+                prop: '<path d="M66 56 L108 58" class="band"/><rect x="106" y="50" width="8" height="16" rx="2" class="pr2"/>' },
+    bridge:   { h: [102, 100], s: [88, 100], p: [56, 78], k: [36, 70], f: [26, 106], e: [76, 106], w: [64, 106] },
+    calf:     { h: [60, 22], s: [60, 34], p: [60, 64], k: [60, 86], f: [60, 100], toe: [68, 108], e: [62, 50], w: [64, 66],
+                prop: '<path d="M42 104 V86 M36 92 L42 86 L48 92" class="arrow"/>' },
+    jump:     { h: [60, 18], s: [60, 30], p: [60, 58], k: [70, 72], f: [60, 88], k2: [52, 74], f2: [48, 90], e: [46, 22], w: [40, 8], e2: [74, 22], w2: [80, 8],
+                prop: '<path d="M40 106 h40 M48 100 v-6 M72 100 v-6" class="arrow"/>' },
+    superman: { h: [100, 90], s: [88, 96], p: [56, 104], k: [36, 106], f: [16, 103], e: [102, 84], w: [114, 78] },
+    oneleg:   { h: [60, 20], s: [60, 32], p: [60, 62], k: [60, 86], f: [60, 108], k2: [76, 76], f2: [70, 94], e: [44, 42], w: [30, 50], e2: [76, 42], w2: [90, 50] },
+    tandem:   { h: [60, 20], s: [60, 32], p: [60, 62], k: [66, 86], f: [70, 108], k2: [56, 86], f2: [52, 108], e: [44, 42], w: [30, 48], e2: [76, 42], w2: [90, 48],
+                prop: '<line x1="10" y1="112" x2="110" y2="112" class="dash"/>' },
+    walk:     { h: [62, 20], s: [60, 32], p: [58, 62], k: [70, 84], f: [82, 106], k2: [50, 86], f2: [38, 106], e: [70, 46], w: [78, 58], e2: [50, 48], w2: [42, 60] },
+    stairs:   { h: [58, 24], s: [57, 36], p: [54, 64], k: [74, 58], f: [78, 72], k2: [44, 86], f2: [36, 106], e: [66, 48], w: [72, 60], e2: [48, 50], w2: [42, 62], noFloor: true,
+                prop: '<path d="M4 108 H40 V90 H70 V72 H116" class="pr"/>' }
+  };
+  const seg = (a, b) => (a && b ? `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>` : "");
+  function moveSvg(id, color = "#1d6a86", size = 96) {
+    const P = POSE[id] || POSE.walk;
+    const legs = seg(P.p, P.k) + seg(P.k, P.f) + (P.toe ? seg(P.f, P.toe) : "") + seg(P.p, P.k2) + seg(P.k2, P.f2);
+    const arms = seg(P.s, P.e) + seg(P.e, P.w) + seg(P.s, P.e2) + seg(P.e2, P.w2);
+    return `<svg viewBox="0 0 120 120" width="${size}" height="${size}" role="img" aria-label="${id}" xmlns="http://www.w3.org/2000/svg">
+      <style>.pr{fill:none;stroke:#9fb0b4;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.pr2{fill:#9fb0b4}
+      .bar{stroke:#5b6b74;stroke-width:5;stroke-linecap:round}.plate{fill:#5b6b74}
+      .band{fill:none;stroke:${color};stroke-width:3;stroke-dasharray:6 4}.arrow{fill:none;stroke:${color};stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+      .dash{stroke:#9fb0b4;stroke-width:3;stroke-dasharray:8 6}</style>
+      ${P.noFloor ? "" : '<line x1="6" y1="110" x2="114" y2="110" stroke="#d5dedd" stroke-width="3" stroke-linecap="round"/>'}
+      ${P.prop || ""}
+      <g stroke="${color}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        ${seg(P.s, P.p)}${legs}${arms}
+      </g>
+      <circle cx="${P.h[0]}" cy="${P.h[1]}" r="9" fill="${color}"/>
+    </svg>`;
+  }
+
+  /* ---------- 추천 한끼 식판 ----------
+   * 칸: 위 3칸 = 반찬, 아래 왼쪽 = 밥, 아래 오른쪽 = 국, 식판 옆 = 곁들임(우유·요거트)
+   */
+  const rnd = (seed => () => (seed = (seed * 9301 + 49297) % 233280) / 233280);
+  function food(kind, name, cx, cy, w, h) {
+    const r = rnd(name.length * 31 + cx);
+    const has = t => name.includes(t);
+    switch (kind) {
+      case "rice": {
+        const base = has("현미") ? "#e9dcc0" : has("잡곡") ? "#e4d6c4" : "#f7f4ec";
+        let dots = "";
+        for (let i = 0; i < 26; i++) {
+          const a = r() * Math.PI * 2, d = Math.sqrt(r());
+          const col = has("잡곡") && i % 3 === 0 ? "#6b3b4a" : has("현미") && i % 2 ? "#b89568" : "#ffffff";
+          const gx = (cx + Math.cos(a) * d * w * .33).toFixed(1), gy = (cy + Math.sin(a) * d * h * .27).toFixed(1);
+          dots += `<ellipse cx="${gx}" cy="${gy}" rx="3.2" ry="1.8" fill="${col}" transform="rotate(${Math.round(r() * 180)} ${gx} ${gy})"/>`;
+        }
+        return `<ellipse cx="${cx}" cy="${cy + 4}" rx="${w * .44}" ry="${h * .4}" fill="#ffffff" stroke="#d9d3c6" stroke-width="2"/>
+          <ellipse cx="${cx}" cy="${cy}" rx="${w * .4}" ry="${h * .34}" fill="${base}"/>${dots}`;
+      }
+      case "soup": {
+        const liquid = has("미역") ? "#7a5a3a" : has("된장") ? "#b8834a" : has("순두부") ? "#d9653b" : has("콩나물") ? "#efe4b8" : "#d8b98a";
+        let bits = "";
+        for (let i = 0; i < 9; i++) {
+          const x = cx + (r() - .5) * w * .55, y = cy + (r() - .5) * h * .4;
+          if (has("미역")) bits += `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q6 -6 12 0 t12 0" stroke="#2f4a2a" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+          else if (has("콩나물")) bits += `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q8 4 16 -2" stroke="#fff6d8" stroke-width="3" fill="none"/><circle cx="${(x + 17).toFixed(0)}" cy="${(y - 2).toFixed(0)}" r="3.5" fill="#f2cf4a"/>`;
+          else bits += `<rect x="${x.toFixed(0)}" y="${y.toFixed(0)}" width="11" height="11" rx="2" fill="#fbf6e9" opacity=".95"/>`;
+        }
+        if (has("소고기")) for (let i = 0; i < 4; i++) bits += `<rect x="${(cx + (r() - .5) * w * .4).toFixed(0)}" y="${(cy + (r() - .5) * h * .3).toFixed(0)}" width="10" height="6" rx="2" fill="#6b3a2a"/>`;
+        return `<ellipse cx="${cx}" cy="${cy + 4}" rx="${w * .44}" ry="${h * .4}" fill="#f4f1ea" stroke="#d9d3c6" stroke-width="2"/>
+          <ellipse cx="${cx}" cy="${cy}" rx="${w * .38}" ry="${h * .32}" fill="${liquid}"/>${bits}`;
+      }
+      case "fish": {
+        if (has("연어")) return `<path d="M${cx - w * .36} ${cy + 6} q${w * .3} -${h * .55} ${w * .72} -6 q-${w * .3} ${h * .5} -${w * .72} 6z" fill="#f08a5d" stroke="#d96d42" stroke-width="2"/>
+          ${[0, 1, 2, 3].map(i => `<path d="M${cx - w * .2 + i * w * .12} ${cy - h * .18} q6 ${h * .2} 0 ${h * .36}" stroke="#ffd7c2" stroke-width="3" fill="none"/>`).join("")}`;
+        return `<path d="M${cx - w * .38} ${cy} q${w * .34} -${h * .42} ${w * .66} 0 q-${w * .32} ${h * .42} -${w * .66} 0z" fill="#8a9aa8" stroke="#5f6f7c" stroke-width="2"/>
+          <path d="M${cx + w * .28} ${cy} l${w * .12} -${h * .18} v${h * .36}z" fill="#5f6f7c"/>
+          ${[0, 1, 2].map(i => `<path d="M${cx - w * .2 + i * w * .14} ${cy - h * .16} q8 ${h * .16} 0 ${h * .32}" stroke="#3f4d58" stroke-width="3" fill="none"/>`).join("")}
+          <circle cx="${cx - w * .28}" cy="${cy - 3}" r="2.5" fill="#1f2a30"/><rect x="${cx - w * .3}" y="${cy - h * .1}" width="${w * .5}" height="4" fill="#c7a26a" opacity=".6"/>`;
+      }
+      case "meat":
+        return [0, 1, 2].map(i => `<rect x="${cx - w * .36 + i * w * .22}" y="${cy - h * .22 + i * 4}" width="${w * .3}" height="${h * .4}" rx="6" fill="#c98b52" stroke="#9c6534" stroke-width="2"/>
+          <path d="M${cx - w * .32 + i * w * .22} ${cy - h * .05 + i * 4} h${w * .22} M${cx - w * .32 + i * w * .22} ${cy + h * .06 + i * 4} h${w * .22}" stroke="#7a4a22" stroke-width="2.5"/>`).join("")
+          + `<circle cx="${cx + w * .32}" cy="${cy - h * .2}" r="6" fill="#4f9a4f"/>`;
+      case "tofu":
+        return [[-.24, -.12], [.06, -.16], [-.1, .14], [.22, .1]].map(([dx, dy]) => `<rect x="${cx + dx * w - 13}" y="${cy + dy * h - 11}" width="26" height="22" rx="3" fill="${has("조림") ? "#e8c088" : "#f3e7c8"}" stroke="${has("조림") ? "#b98543" : "#d8c8a0"}" stroke-width="2"/>`).join("")
+          + (has("조림") ? `<path d="M${cx - w * .3} ${cy + h * .3} h${w * .6}" stroke="#a5642a" stroke-width="3" opacity=".5"/>` : `<path d="M${cx - 14} ${cy - 8} h8 M${cx + 12} ${cy + 8} h8" stroke="#c9a364" stroke-width="2"/>`)
+          + `<circle cx="${cx + w * .3}" cy="${cy - h * .26}" r="3" fill="#4f9a4f"/><circle cx="${cx - w * .3}" cy="${cy + h * .24}" r="3" fill="#d9483b"/>`;
+      case "anchovy": {
+        let s = "";
+        for (let i = 0; i < 16; i++) {
+          const x = cx + (r() - .5) * w * .7, y = cy + (r() - .5) * h * .55, a = Math.round(r() * 360);
+          s += `<path d="M${x.toFixed(0)} ${y.toFixed(0)} q7 -4 14 0" stroke="#b9c2c8" stroke-width="3.5" fill="none" stroke-linecap="round" transform="rotate(${a} ${x.toFixed(0)} ${y.toFixed(0)})"/>`;
+        }
+        return `<ellipse cx="${cx}" cy="${cy}" rx="${w * .38}" ry="${h * .32}" fill="#e2b76a" opacity=".45"/>${s}`
+          + [0, 1, 2, 3].map(() => `<circle cx="${(cx + (r() - .5) * w * .6).toFixed(0)}" cy="${(cy + (r() - .5) * h * .5).toFixed(0)}" r="3" fill="#7a5a2a"/>`).join("");
+      }
+      case "greens": {
+        let s = "";
+        const col = has("브로콜리") ? ["#3f7f3a", "#5a9d4a"] : ["#2f7d3a", "#4f9d44"];
+        for (let i = 0; i < 9; i++) {
+          const x = cx + (r() - .5) * w * .6, y = cy + (r() - .5) * h * .45;
+          s += has("브로콜리")
+            ? `<rect x="${(x - 2).toFixed(0)}" y="${y.toFixed(0)}" width="5" height="12" fill="#9cc47a"/><circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="9" fill="${col[i % 2]}"/>`
+            : `<ellipse cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" rx="12" ry="6" fill="${col[i % 2]}" transform="rotate(${Math.round(r() * 180)} ${x.toFixed(0)} ${y.toFixed(0)})"/>`;
+        }
+        return s + `<circle cx="${cx - 6}" cy="${cy}" r="2" fill="#f5e7b0"/><circle cx="${cx + 8}" cy="${cy + 6}" r="2" fill="#f5e7b0"/>`;
+      }
+      case "egg":
+        return `<ellipse cx="${cx}" cy="${cy + 4}" rx="${w * .34}" ry="${h * .34}" fill="#5b4a3a"/>
+          <ellipse cx="${cx}" cy="${cy}" rx="${w * .3}" ry="${h * .28}" fill="#f6d35b"/>
+          <path d="M${cx - 14} ${cy - 4} q6 -6 12 0 M${cx + 2} ${cy + 6} q6 -6 12 0" stroke="#e9b93a" stroke-width="2.5" fill="none"/>
+          <circle cx="${cx - 8}" cy="${cy + 8}" r="2.5" fill="#4f9a4f"/><circle cx="${cx + 10}" cy="${cy - 8}" r="2.5" fill="#4f9a4f"/>`;
+      default: return "";
+    }
+  }
+  function sideItem(kind, name, x, y) {
+    if (kind === "milk") return `<g transform="translate(${x} ${y})">
+      <path d="M0 26 L14 8 H50 L64 26 V110 H0Z" fill="#ffffff" stroke="#9db8d6" stroke-width="3"/>
+      <path d="M14 8 L22 0 H42 L50 8" fill="#eaf2fb" stroke="#9db8d6" stroke-width="3"/>
+      <rect x="0" y="48" width="64" height="34" fill="#3d7cc4"/>
+      <text x="32" y="72" text-anchor="middle" font-size="18" font-weight="800" fill="#fff">우유</text></g>`;
+    if (kind === "yogurt") return `<g transform="translate(${x} ${y + 24})">
+      <path d="M0 12 H66 L58 86 H8Z" fill="#ffffff" stroke="#cdbfd9" stroke-width="3"/>
+      <ellipse cx="33" cy="12" rx="33" ry="9" fill="#faf7fd" stroke="#cdbfd9" stroke-width="3"/>
+      ${name.includes("블루베리") ? [[18, 8], [30, 12], [44, 7], [38, 14], [24, 15]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="5" fill="#4a4f9a"/>`).join("") : '<path d="M14 10 q10 6 20 0 t20 0" stroke="#e9dff2" stroke-width="4" fill="none"/>'}
+      <text x="33" y="56" text-anchor="middle" font-size="15" font-weight="800" fill="#8a6fa8">요거트</text></g>`;
+    return "";
+  }
+  /* meal = core.MEAL[q]. 결과 크기 560×400 */
+  function traySvg(meal, color = "#1d6a86", opts = {}) {
+    const [rice, soup, a, b, c, side] = meal.tray;
+    const X = 16, Y = 16, W = 410, H = 268;
+    const top = [a, b, c].map((it, i) => ({ it, x: X + 14 + i * 130, y: Y + 14, w: 122, h: 104 }));
+    const bot = [{ it: rice, x: X + 14, y: Y + 128, w: 186, h: 126 }, { it: soup, x: X + 210, y: Y + 128, w: 186, h: 126 }];
+    const cell = ({ it, x, y, w, h }) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#e6ebe9"/>${food(it.kind, it.name, x + w / 2, y + h / 2, w, h)}`;
+    const labels = opts.labels === false ? "" : (() => {
+      const all = [...top, ...bot];
+      // 번호 표시 + 아래 범례
+      let pins = all.map(({ x, y, w }, i) => `<circle cx="${x + w - 14}" cy="${y + 14}" r="11" fill="${color}"/><text x="${x + w - 14}" y="${y + 19}" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">${i + 1}</text>`).join("");
+      pins += `<circle cx="${X + W + 92}" cy="${Y + 108}" r="11" fill="${color}"/><text x="${X + W + 92}" y="${Y + 113}" text-anchor="middle" font-size="13" font-weight="800" fill="#fff">6</text>`;
+      const items = [a, b, c, rice, soup, side];
+      const leg = items.map((it, i) => {
+        const col = i % 2, row = Math.floor(i / 2);
+        const lx = 20 + col * 272, ly = Y + H + 34 + row * 34;
+        return `<circle cx="${lx + 9}" cy="${ly - 5}" r="9" fill="${color}"/><text x="${lx + 9}" y="${ly}" text-anchor="middle" font-size="11" font-weight="800" fill="#fff">${i + 1}</text>
+          <text x="${lx + 26}" y="${ly}" font-size="16" font-weight="700" fill="#15212a">${it.name}<tspan font-weight="400" fill="#5b6b74" font-size="14">  ${it.note}</tspan></text>`;
+      }).join("");
+      return pins + (opts.legend === false ? "" : leg);
+    })();
+    const height = opts.labels === false || opts.legend === false ? Y + H + 16 : Y + H + 34 + 3 * 34;
+    return `<svg viewBox="0 0 560 ${height}" width="100%" role="img" aria-label="추천 한끼: ${meal.tray.map(t => t.name).join(", ")}" xmlns="http://www.w3.org/2000/svg" font-family="'IBM Plex Sans KR','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+      <rect x="${X + 4}" y="${Y + 8}" width="${W}" height="${H}" rx="26" fill="#000" opacity=".08"/>
+      <rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="26" fill="#cfd8d6" stroke="#b5c1bf" stroke-width="2"/>
+      ${top.map(cell).join("")}${bot.map(cell).join("")}
+      ${sideItem(side.kind, side.name, X + W + 60, Y + 120)}
+      <path d="M${X + W + 26} ${Y + 250} q40 -18 92 0" stroke="#d5dedd" stroke-width="3" fill="none"/>
+      ${labels}
+    </svg>`;
+  }
+
+  return { POSE, moveSvg, traySvg };
+});
+
+</script>
+<script>
+const T = window.TT;
+const { FRAX, BMD, ACTS, ALL_ACTS, FREQ, DUR, GOOD, BAD, Q, MET_CUT, BONE_CUT } = T;
+const $ = id => document.getElementById(id);
+
+/* ---------- 상태 ---------- */
+let state = T.emptyState();
+function sample(){
+  const s = T.emptyState();
+  Object.assign(s, {age:52, sex:"M", h:172, w:70});
+  s.frax.alcohol = true;
+  s.acts.walk = [2,0]; s.acts.weight = [0,1];
+  s.good.protein = true; s.bad.coffee = true;
+  return s;
+}
+const calc = () => T.calc(state);
+
+/* ---------- 설문 그리기 ---------- */
+function checkBox(container, item, group, isBad){
+  const lab = document.createElement("label");
+  lab.className = "check" + (isBad ? " bad" : "");
+  lab.innerHTML = `<input type="checkbox" id="c_${group}_${item.id}"><span>${item.no?`<b class="qn">${item.no}</b>`:""}${item.label}${item.sub?`<small>${item.sub}</small>`:""}</span>`;
+  const inp = lab.querySelector("input");
+  inp.addEventListener("change", ()=>{ state[group][item.id] = inp.checked; touch(); });
+  container.appendChild(lab);
+}
+function buildForm(){
+  FRAX.forEach(f=>checkBox($("fraxChecks"), f, "frax", true));
+  GOOD.forEach(g=>checkBox($("foodGood"), g, "good"));
+  BAD.forEach(b=>checkBox($("foodBad"), b, "bad", true));
+  $("bmd").innerHTML = BMD.map(b=>`<label><input type="radio" name="bmd" value="${b.id}"><span>${b.label}</span></label>`).join("");
+  document.querySelectorAll("input[name=bmd]").forEach(r=>r.addEventListener("change",()=>{ state.bmd = r.value; touch(); }));
+  document.querySelectorAll("input[name=sex]").forEach(r=>r.addEventListener("change",()=>{ state.sex = r.value; touch(); }));
+  [["age","age"],["h","h"],["w","w"]].forEach(([id,key])=>{
+    $(id).addEventListener("input", ()=>{ const v = parseFloat($(id).value); state[key] = isFinite(v) && v > 0 ? v : null; touch(); });
+  });
+
+  const al = $("actList");
+  ACTS.forEach(grp=>{
+    const h = document.createElement("div"); h.className = "int-label"; h.textContent = `${grp.int} · ${grp.met} MET`; al.appendChild(h);
+    const box = document.createElement("div"); box.className = "acts";
+    grp.items.forEach(a=>{
+      const row = document.createElement("div"); row.className = "act"; row.id = "row_"+a.id;
+      row.innerHTML = `<label class="name"><input type="checkbox" id="a_${a.id}"><span>${a.label}</span></label>
+        <div class="opts">
+          <div class="freq" role="group" aria-label="${a.label} 횟수">${FREQ.map((f,i)=>`<button type="button" data-k="0" data-i="${i}">${f.l}</button>`).join("")}</div>
+          <div class="freq" role="group" aria-label="${a.label} 한 번에 하는 시간">${DUR.map((d,i)=>`<button type="button" data-k="1" data-i="${i}">${d.l}</button>`).join("")}</div>
+        </div>`;
+      const cb = row.querySelector("input");
+      cb.addEventListener("change", ()=>{ if(cb.checked) state.acts[a.id] = state.acts[a.id] || [0,0]; else delete state.acts[a.id]; touch(); });
+      row.querySelectorAll(".freq button").forEach(btn=>btn.addEventListener("click", ()=>{
+        const v = state.acts[a.id] || [0,0]; v[+btn.dataset.k] = +btn.dataset.i; state.acts[a.id] = v; touch();
+      }));
+      box.appendChild(row);
+    });
+    al.appendChild(box);
+  });
+  $("resetBtn").addEventListener("click", ()=>{ state = T.emptyState(); $("sampleNote").textContent = "새 응답을 입력해 주세요"; sync(true); compute(); });
+}
+function touch(){ $("sampleNote").textContent = "내 응답으로 계산 중이에요"; sync(); compute(); }
+
+function sync(all){
+  [["age","age"],["h","h"],["w","w"]].forEach(([id,key])=>{
+    const el = $(id); if(all || document.activeElement !== el) el.value = state[key] ?? "";
+  });
+  document.querySelectorAll("input[name=sex]").forEach(r=>r.checked = r.value === state.sex);
+  document.querySelectorAll("input[name=bmd]").forEach(r=>r.checked = r.value === state.bmd);
+  const bmi = T.bmiOf(state);
+  $("bmiOut").textContent = bmi ? `BMI ${bmi.toFixed(1)}${bmi<18.5?" · 저체중":bmi<20?" · 마른 편":""}` : "BMI는 자동으로 계산돼요";
+  [["frax",FRAX],["good",GOOD],["bad",BAD]].forEach(([g,list])=>list.forEach(it=>{
+    const inp = $(`c_${g}_${it.id}`); inp.checked = !!state[g][it.id]; inp.parentElement.classList.toggle("on", inp.checked);
+  }));
+  ALL_ACTS.forEach(a=>{
+    const row = $("row_"+a.id), v = state.acts[a.id];
+    row.classList.toggle("on", !!v); row.querySelector("input").checked = !!v;
+    row.querySelectorAll(".freq button").forEach(b=>b.classList.toggle("sel", !!v && v[+b.dataset.k] === +b.dataset.i));
+  });
+}
+
+/* ---------- 결과 ---------- */
+function compute(){
+  const R = T.buildResult(state), r = R.r, d = R.d;
+  $("result").style.setProperty("--qc", `var(--${r.q})`);
+  $("resName").textContent = `${d.no} ${d.name}`;
+  $("resTag").textContent = d.tag;
+  $("resLine").textContent = d.line;
+  $("sRisk").textContent = r.risk + "점";
+  $("sMet").textContent = r.met.toLocaleString();
+  $("sFood").textContent = r.foodScore + "/6";
+  drawQuad(r);
+
+  // 1. 뼈 건강
+  let bone = `<p>${R.bone.text}</p>`;
+  if(R.bone.stage) bone += `<p class="mini">${R.bone.stage.replace(/^([^.]*\.)/, "<b>$1</b>")}</p>`;
+  bone += r.factors.length
+    ? `<div class="mini">뼈 위험 점수에 반영된 항목 (${BONE_CUT}점 이하면 튼튼)</div><div class="chips">${r.factors.map(([n,p])=>`<span class="chip">${n} +${p}</span>`).join("")}</div>`
+    : `<div class="chips"><span class="chip ok">FRAX 위험 요인 없음</span></div>`;
+  if(state.age!=null && (state.age<40 || state.age>90)) bone += `<p class="mini" style="margin-top:6px">FRAX는 40~90세 기준이라 ${state.age<40?40:90}세로 계산했어요.</p>`;
+  if(state.age==null || !state.sex || !state.h || !state.w) bone += `<p class="mini" style="margin-top:6px">나이·성별·키·몸무게를 모두 입력하면 더 정확해져요.</p>`;
+  if(state.frax.secondary && state.bmd !== "u") bone += `<p class="mini" style="margin-top:6px">FRAX와 같이, 골밀도 결과를 넣으면 이차성 골다공증은 점수에 따로 더하지 않아요.</p>`;
+  if(R.bone.bmd) bone += `<p class="mini" style="margin-top:8px"><b>${R.bone.bmd}</b></p>`;
+  bone += `<div class="ev">50세 이상 2명 중 1명은 골감소증이에요. 골다공증 전 단계라 지금 관리하면 충분히 바꿀 수 있어요 (대한골대사학회 팩트시트 2023)</div>`;
+  $("outBone").innerHTML = bone;
+
+  // 2. 운동
+  let ex = `<p><b>목표: ${R.ex.goal}</b></p><ul>${R.ex.plan.map(p=>`<li>${p}</li>`).join("")}</ul><p class="mini">추천 동작: ${R.ex.moves}</p>`;
+  if(r.actRows.length) ex += `<div class="mini" style="margin-top:6px">내 활동량</div><div class="chips">${r.actRows.map(([n,m])=>`<span class="chip ok">${n} ${m.toLocaleString()}</span>`).join("")}</div>`;
+  if(R.ex.tips.length) ex += `<div class="mini" style="margin-top:6px">내 응답에 맞춘 조언</div><ul>${R.ex.tips.map(t=>`<li>${t}</li>`).join("")}</ul>`;
+  if(R.ex.caution) ex += `<p class="mini" style="margin-top:6px">${R.ex.caution}</p>`;
+  ex += `<div class="ev">${R.ex.ev}</div>`;
+  $("outEx").innerHTML = ex;
+
+  // 3. 식품
+  let food = `<p>${R.food.text}</p>`;
+  food += R.food.missing.length
+    ? `<div class="mini">채워볼 것</div><ul>${R.food.missing.map(m=>`<li><b>${m.todo}</b><br><span class="mini">${m.ex}</span></li>`).join("")}</ul>`
+    : `<div class="chips"><span class="chip ok">뼈에 좋은 식습관을 모두 지키고 있어요</span></div>`;
+  if(R.food.reduce.length) food += `<div class="mini" style="margin-top:6px">줄여볼 것</div><ul>${R.food.reduce.map(b=>`<li>${b.fix}${b.scored?' <span class="mini">(뼈 점수에 반영됨)</span>':''}</li>`).join("")}</ul>`;
+  food += `<div class="ev">${R.food.ev}</div>`;
+  $("outFood").innerHTML = food;
+
+  renderPlan(R);
+  $("resCode").textContent = T.encodeState(state);
+  $("preview").classList.remove("show");
+}
+
+/* ---------- 맞춤 운동·식단 ---------- */
+function renderPlan(R){
+  const { routine, meal, nut, skipJump } = R.plan, d = R.d, c = `var(--${R.r.q})`;
+  $("planKicker").textContent = `${d.no} ${d.name} 맞춤`;
+  $("plan").style.setProperty("--qc", c);
+  $("rtTitle").textContent = routine.title;
+  const blocks = routine.blocks.map(b=>{
+    const moves = b.moves.filter(([id])=>!(skipJump && id==="jump"));
+    if(!moves.length) return "";
+    return `<div class="blk"><div class="blk-h"><b>${b.name}</b><span>${b.freq}</span></div>
+      <div class="moves">${moves.map(([id,dose])=>`<figure class="mv">${TTART.moveSvg(id, d.color, 76)}<figcaption><b>${T.MOVES[id].name}</b><span class="dose">${dose}</span><small>${T.MOVES[id].cue}</small></figcaption></figure>`).join("")}</div>
+      ${b.note?`<p class="mini">${b.note}</p>`:""}</div>`;
+  }).join("");
+  const hadJump = routine.blocks.some(b=>b.moves.some(([id])=>id==="jump"));
+  const warn = [skipJump && hadJump ? "골절 경험이나 골다공증이 있어 점프 운동은 뺐어요." : "", routine.avoid || ""].filter(Boolean);
+  $("rtBody").innerHTML = blocks + (warn.length?`<p class="warn">${warn.join(" ")}</p>`:"") + `<div class="ev">${routine.ev}</div>`;
+
+  $("mealTitle").textContent = `추천 한끼 · ${meal.title}`;
+  $("mealBody").innerHTML = `<div class="tray">${TTART.traySvg(meal, d.color, {legend:false})}</div>
+    <ol class="legend">${[2,3,4,0,1,5].map(i=>meal.tray[i]).map(it=>`<li><b>${it.name}</b> <span>${it.note}</span></li>`).join("")}</ol>
+    <p class="point">${meal.point}</p>
+    <div class="nut">
+      <div><b>${nut.ca}mg</b><span>칼슘</span></div>
+      <div><b>${nut.vd}µg</b><span>비타민D</span></div>
+      <div><b>${nut.pro? nut.pro+"g" : nut.per+"g/kg"}</b><span>단백질</span></div>
+    </div>
+    <p class="mini">내 하루 목표 (${state.sex? (state.sex==="F"?"여성":"남성"):"성별 미입력"}${state.age!=null?` · ${state.age}세`:""}${state.w?` · ${state.w}kg`:""}). 칼슘·비타민D는 한국인 영양소 섭취기준(2020), 단백질은 뼈 건강 권고(체중 1kg당 1.0~1.2g)예요.</p>
+    <p class="mini">칼슘 ${nut.ca}mg 채우는 예: ${nut.caEx}</p>
+    <div class="day">${meal.day.map(([t,m])=>`<div><b>${t}</b><span>${m}</span></div>`).join("")}</div>
+    <div class="ev">${R.food.ev}</div>`;
+}
+
+/* ---------- 4분면: 가로 = 활동량, 세로 = 뼈 건강 ---------- */
+const L=56, R_=344, TOP=14, B=244, MX=(L+R_)/2, MY=(TOP+B)/2;
+function xPos(met){ return met<=MET_CUT ? L+(met/MET_CUT)*(MX-L) : MX+Math.min((met-MET_CUT)/2400,1)*(R_-MX); }
+function yPos(risk){ const c=BONE_CUT+.5; return risk<=c ? TOP+(risk/c)*(MY-TOP) : MY+Math.min((risk-c)/(12-c),1)*(B-MY); }
+function drawQuad(r){
+  const cell=(x,y,w,h,q,label,ax,ay,anchor)=>{
+    const on=r.q===q;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="var(--${q})" opacity="${on?0.16:0.06}"/>
+      <text x="${ax}" y="${ay}" text-anchor="${anchor}" font-size="12" font-weight="${on?700:500}" fill="${on?`var(--${q})`:'var(--muted)'}">${label}</text>`;
+  };
+  const px=xPos(r.met), py=yPos(r.risk);
+  $("quad").innerHTML = `
+    ${cell(MX,TOP,R_-MX,MY-TOP,"q1","① 튼튼 유지형",R_-6,TOP+16,"end")}
+    ${cell(L,TOP,MX-L,MY-TOP,"q2","② 움직임 충전형",L+6,TOP+16,"start")}
+    ${cell(L,MY,MX-L,B-MY,"q3","③ 집중 케어형",L+6,B-8,"start")}
+    ${cell(MX,MY,R_-MX,B-MY,"q4","④ 습관 보완형",R_-6,B-8,"end")}
+    <rect x="${L}" y="${TOP}" width="${R_-L}" height="${B-TOP}" fill="none" stroke="var(--line)"/>
+    <line x1="${MX}" y1="${TOP}" x2="${MX}" y2="${B}" stroke="var(--muted)" stroke-dasharray="4 4"/>
+    <line x1="${L}" y1="${MY}" x2="${R_}" y2="${MY}" stroke="var(--muted)" stroke-dasharray="4 4"/>
+    <text x="${L-6}" y="${TOP+10}" text-anchor="end" font-size="11" fill="var(--muted)">0점</text>
+    <text x="${L-6}" y="${MY-4}" text-anchor="end" font-size="11" fill="var(--muted)">${BONE_CUT}점</text>
+    <text x="${L-6}" y="${MY+12}" text-anchor="end" font-size="11" fill="var(--muted)">${BONE_CUT+1}점</text>
+    <text x="${L-6}" y="${B}" text-anchor="end" font-size="11" fill="var(--muted)">12점+</text>
+    <text x="${L}" y="${B+16}" text-anchor="start" font-size="11" fill="var(--muted)">0</text>
+    <text x="${MX}" y="${B+16}" text-anchor="middle" font-size="11" fill="var(--muted)">${MET_CUT}</text>
+    <text x="${R_}" y="${B+16}" text-anchor="end" font-size="11" fill="var(--muted)">3000+</text>
+    <text x="${(L+R_)/2}" y="${B+38}" text-anchor="middle" font-size="12" fill="var(--ink)">활동량 (주간 MET-분) → 오른쪽일수록 활발</text>
+    <text transform="translate(14 ${(TOP+B)/2}) rotate(-90)" text-anchor="middle" font-size="12" fill="var(--ink)">뼈 건강 ↑ 위일수록 튼튼</text>
+    <circle cx="${px}" cy="${py}" r="13" fill="var(--${r.q})" opacity="0.22"/>
+    <circle cx="${px}" cy="${py}" r="6.5" fill="var(--${r.q})" stroke="var(--surface)" stroke-width="2"/>
+    <text x="${px}" y="${py-14}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">나</text>`;
+}
+
+/* ---------- 카드뉴스 이미지 (1080×1350) ---------- */
+function wrap(ctx,text,maxW){
+  const out=[]; let line="";
+  for(const ch of text){
+    const t=line+ch;
+    if(ctx.measureText(t).width>maxW && line){
+      const sp=line.lastIndexOf(" ");
+      if(sp>0 && ch!==" "){ out.push(line.slice(0,sp)); line=line.slice(sp+1)+ch; }
+      else { out.push(line); line=ch===" "?"":ch; }
+    } else line=t;
+  }
+  if(line) out.push(line);
+  return out;
+}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+async function makeCard(){
+  const RS=T.buildResult(state), r=RS.r, d=RS.d, c=d.color, soft=d.soft;
+  const D='"Do Hyeon","IBM Plex Sans KR",sans-serif', BF='"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+  try{ await Promise.all([document.fonts.load(`40px "Do Hyeon"`),document.fonts.load(`700 30px "IBM Plex Sans KR"`),document.fonts.load(`400 30px "IBM Plex Sans KR"`)]); }catch(e){}
+  const W=1080,H=1350,P=72, cv=document.createElement("canvas"); cv.width=W; cv.height=H;
+  const x=cv.getContext("2d");
+  x.fillStyle="#ffffff"; x.fillRect(0,0,W,H);
+  x.fillStyle=c; x.fillRect(0,0,W,26);
+  x.font=`44px ${D}`; x.fillStyle="#15212a"; x.fillText("튼튼",P,108); x.fillStyle=c; x.fillText("하조",P+x.measureText("튼튼").width,108);
+  x.font=`500 26px ${BF}`; x.fillStyle="#5b6b74"; x.textAlign="right"; x.fillText("뼈 건강 체크 결과",W-P,104); x.textAlign="left";
+  x.font=`600 32px ${BF}`; x.fillStyle="#5b6b74"; x.fillText("나의 결과군",P,190);
+  let fs=128; do{ x.font=`${fs}px ${D}`; fs-=4; } while(x.measureText(d.name).width>W-P*2-270 && fs>60);
+  x.fillStyle=c; x.fillText(d.name,P,320);
+  x.font=`700 30px ${BF}`; const tw=x.measureText(d.tag).width+48;
+  rrect(x,P,350,tw,56,28); x.fillStyle=soft; x.fill(); x.fillStyle=c; x.fillText(d.tag,P+24,389);
+  x.font=`700 38px ${BF}`; x.fillStyle="#15212a";
+  let y=470; wrap(x,d.line,W-P*2-260).forEach(l=>{x.fillText(l,P,y); y+=54;});
+  // 4분면 (② ① / ③ ④)
+  const qx=W-P-220, qy=150, cs=104, gap=8;
+  [["q2",0,0,"②"],["q1",1,0,"①"],["q3",0,1,"③"],["q4",1,1,"④"]].forEach(([k,i,j,n])=>{
+    rrect(x,qx+i*(cs+gap),qy+j*(cs+gap),cs,cs,16); x.fillStyle=k===r.q?c:"#e8eded"; x.fill();
+    x.font=`52px ${D}`; x.fillStyle=k===r.q?"#fff":"#aab5b4"; x.textAlign="center"; x.fillText(n,qx+i*(cs+gap)+cs/2,qy+j*(cs+gap)+cs/2+18); x.textAlign="left";
+  });
+  x.font=`500 20px ${BF}`; x.fillStyle="#5b6b74"; x.fillText("뼈 건강 ↑   활동량 →",qx+6,qy+2*cs+gap+34);
+  y=Math.max(y+10,560);
+  const stats=[[r.risk+"점","뼈 위험 점수"],[r.met.toLocaleString(),"주간 MET-분"],[r.foodScore+"/6","뼈 식습관"]];
+  const sw=(W-P*2-32)/3;
+  stats.forEach(([v,l],i)=>{
+    const sx=P+i*(sw+16); rrect(x,sx,y,sw,130,20); x.fillStyle="#f1f4f3"; x.fill();
+    x.font=`56px ${D}`; x.fillStyle="#15212a"; x.fillText(v,sx+26,y+70);
+    x.font=`500 24px ${BF}`; x.fillStyle="#5b6b74"; x.fillText(l,sx+26,y+108);
+  });
+  y+=180;
+  const section=(title,lines,color)=>{
+    x.font=`700 30px ${BF}`; x.fillStyle=color; x.fillText(title,P,y); y+=48;
+    x.font=`400 30px ${BF}`; x.fillStyle="#15212a";
+    lines.forEach(t=>{ wrap(x,t,W-P*2-34).forEach((l,k)=>{ if(k===0){x.fillStyle=color; x.fillText("•",P+4,y); x.fillStyle="#15212a";} x.fillText(l,P+34,y); y+=44; }); });
+    y+=22;
+  };
+  section(`운동 · ${d.goal}`, d.plan.slice(0,3), c);
+  const red=RS.food.reduce;
+  const foodLines = RS.food.missing.length ? RS.food.missing.slice(0, red.length?2:3).map(m=>`${m.todo} (${m.ex.split(",")[0]})`) : ["뼈에 좋은 식습관을 모두 지키고 있어요"];
+  section("식품 · 채워볼 것", foodLines, "#2f7d4f");
+  const nBad=Math.min(red.length, Math.floor((H-150-y-48)/44));
+  if(nBad>0) section("줄여볼 것", red.slice(0,nBad).map(b=>b.fix), "#b5462f");
+  x.strokeStyle="#d5dedd"; x.setLineDash([8,8]); x.beginPath(); x.moveTo(P,H-120); x.lineTo(W-P,H-120); x.stroke(); x.setLineDash([]);
+  x.font=`400 24px ${BF}`; x.fillStyle="#5b6b74";
+  x.fillText("진단이 아닌 생활습관 점검이에요. 정확한 뼈 상태는 골밀도 검사로 확인하세요.",P,H-76);
+  x.font=`600 24px ${BF}`; x.fillText("튼튼하조 · 골다공증 예방 캠페인",P,H-40);
+  return new Promise(res=>cv.toBlob(b=>res(b),"image/png"));
+}
+
+/* ---------- 카카오톡 채널 주소 (채널을 만든 뒤 채워 주세요. 예: https://pf.kakao.com/_abcde/chat) ---------- */
+const KAKAO_CHANNEL_URL = "";
+
+/* ---------- 카카오톡 공유하기 ----------
+ * developers.kakao.com → 내 애플리케이션 → 앱 키의 "JavaScript 키"를 넣으세요.
+ * 플랫폼 → Web에 이 페이지를 올린 사이트 주소(예: https://tuntunhajo.github.io)를 꼭 등록해야 작동해요.
+ * 비워두면 공유 창/이미지 저장으로 보내요. */
+const KAKAO_JS_KEY = "";
+const KAKAO_SDK = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js";
+let kakaoReady = null;
+function loadKakao(){
+  if(!KAKAO_JS_KEY) return Promise.resolve(null);
+  if(kakaoReady) return kakaoReady;
+  kakaoReady = new Promise(res=>{
+    const sc=document.createElement("script"); sc.src=KAKAO_SDK; sc.crossOrigin="anonymous";
+    sc.onload=()=>{ try{ if(!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY); res(Kakao); }catch(e){ console.warn(e); res(null); } };
+    sc.onerror=()=>res(null);
+    document.head.appendChild(sc);
+  });
+  return kakaoReady;
+}
+loadKakao();
+async function shareKakao(blob){
+  const K = await loadKakao();
+  if(!K || !K.Share) return false;
+  const d=Q[calc().q];
+  const up=await K.Share.uploadImage({file:[new File([blob],"tuntun-result.png",{type:"image/png"})]});
+  const imageUrl=up.infos.original.url;
+  const base=location.origin+location.pathname;
+  const mine=`${base}#${T.encodeState(state)}`;
+  K.Share.sendDefault({
+    objectType:"feed",
+    content:{ title:`나의 뼈 건강 결과: ${d.name}`, description:`${d.tag} · ${d.line}`, imageUrl, imageWidth:1080, imageHeight:1350, link:{mobileWebUrl:mine, webUrl:mine} },
+    buttons:[ {title:"내 결과 자세히 보기", link:{mobileWebUrl:mine, webUrl:mine}}, {title:"나도 체크하기", link:{mobileWebUrl:base, webUrl:base}} ]
+  });
+  return true;
+}
+
+/* ---------- 보내기·저장·복사 ---------- */
+const toast=t=>{ $("toast").textContent=t; };
+function showPreview(blob){
+  const img=$("previewImg");
+  if(img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+  const url=URL.createObjectURL(blob); img.src=url; img.dataset.url=url;
+  $("preview").classList.add("show");
+  return url;
+}
+/* claude.ai 안에서는 downloads 기능으로, 직접 올린 웹사이트에서는 일반 다운로드로 저장해요 */
+let dl=null; try{ window.claude?.use?.("downloads").then(d=>{dl=d;}).catch(()=>{}); }catch(e){}
+async function download(url, blob){
+  const name=`튼튼하조_${Q[calc().q].name}.png`;
+  if(dl){ try{ await dl.save({filename:name, data:blob}); return true; } catch(e){ if(e&&e.code==="declined") return false; } }
+  const a=document.createElement("a"); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); return true;
+}
+$("kakaoBtn").addEventListener("click", async ()=>{
+  toast("이미지를 만드는 중이에요…");
+  const blob=await makeCard(); const url=showPreview(blob);
+  if(KAKAO_JS_KEY){
+    try{ if(await shareKakao(blob)){ toast("카카오톡에서 보낼 친구나 채팅방을 고르세요."); return; } }
+    catch(e){ console.warn("카카오톡 공유 실패", e); }
+  }
+  const file=new File([blob],`튼튼하조_${Q[calc().q].name}.png`,{type:"image/png"});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file], title:"튼튼하조 뼈 건강 체크 결과"}); toast("공유 창에서 카카오톡을 골라 보내세요."); return; }
+    catch(e){ if(e.name==="AbortError"){ toast(""); return; } }
+  }
+  // 아이폰·아이패드: 이 화면에서는 공유 창을 바로 못 띄워서, 이미지를 길게 눌러 공유하도록 안내해요
+  if(/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)){
+    $("preview").classList.add("ios");
+    $("preview").scrollIntoView({behavior:"smooth", block:"center"});
+    toast("아래 이미지를 길게 누르고 [공유] → 카카오톡을 고르세요.");
+    return;
+  }
+  if(await download(url, blob)) toast("이미지를 저장했어요. 카카오톡 채팅방에서 + → 앨범(사진)으로 보내세요."); else toast("");
+});
+$("saveBtn").addEventListener("click", async ()=>{
+  const blob=await makeCard(); if(await download(showPreview(blob), blob)) toast("이미지를 저장했어요.");
+});
+$("copyBtn").addEventListener("click", async ()=>{
+  try{ await navigator.clipboard.writeText(T.encodeState(state)); toast("결과 코드를 복사했어요. 챗봇 채팅방에 붙여넣어 보내세요."); }
+  catch(e){ const rg=document.createRange(); rg.selectNodeContents($("resCode")); const sl=getSelection(); sl.removeAllRanges(); sl.addRange(rg); toast("코드를 선택했어요. 복사해서 보내세요."); }
+});
+if(KAKAO_CHANNEL_URL){ $("chRow").hidden=false; $("chLink").href=KAKAO_CHANNEL_URL; }
+
+/* ---------- 시작 ---------- */
+buildForm();
+function loadHash(){
+  const s = T.decodeState(decodeURIComponent(location.hash.slice(1)));
+  if(s){ state = s; $("sampleNote").textContent = "챗봇·공유 링크로 받은 결과예요"; }
+  return !!s;
+}
+if(!loadHash()) state = sample();
+sync(true); compute();
+addEventListener("hashchange", ()=>{ if(loadHash()){ sync(true); compute(); } });
+</script>
+</body>
+</html>
